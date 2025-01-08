@@ -14,6 +14,7 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Interfaz Gráfica: Interfaz de usuario sencilla y fácil de usar, construida con Tkinter, y con soporte para imágenes.
 - Base de Datos: Utiliza SQLite para almacenar las categorías y sus códigos de manera persistente.
 - Ollama: Si tienes instalado Ollama en tu sistema te va permitir abrir una terminal para interactuar con el modelo llama3.2. 
+- Importar BD: El programa permite ahora importar otra base de datos creada con este mismo problema. La base de datos importada se fusionará con la actual.
 
 ### Requisitos
 

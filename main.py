@@ -92,6 +92,8 @@ class PythonConceptManagerApp:
 
         # Menú Preferencias
         preferences_menu = tk.Menu(menu_bar, tearoff=0)
+        preferences_menu.add_command(label="Importar BD", command=self.fusionar_base_datos)
+        preferences_menu.add_separator()
         preferences_menu.add_command(label="About", command=self.show_about)
         menu_bar.add_cascade(label="Preferencias", menu=preferences_menu)
 
@@ -377,6 +379,56 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
                 messagebox.showerror("Error", f"Error al ejecutar el código: {e}")
         else:
             messagebox.showinfo("Info", f"El concepto '{category_name}' no tiene código asociado que se puede ejecutar.")
+
+    def fusionar_base_datos(self):
+        """Permite importar los datos de un archivo .db y fusionarlos con la base de datos actual."""
+        from tkinter import filedialog, messagebox
+
+        file_path = filedialog.askopenfilename(
+            title="Seleccionar archivo .db",
+            filetypes=[("Archivos SQLite", "*.db"), ("Todos los archivos", "*.*")]
+        )
+
+        if not file_path:
+            messagebox.showinfo("Info", "No se seleccionó ningún archivo.")
+            return
+
+        try:
+            # Conectar con la base de datos importada
+            imported_conn = sqlite3.connect(file_path)
+            imported_cursor = imported_conn.cursor()
+
+            # Obtener las tablas de la base de datos importada
+            imported_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = imported_cursor.fetchall()
+
+            for table_name, in tables:
+                # Leer datos de cada tabla
+                imported_cursor.execute(f"SELECT * FROM {table_name}")
+                rows = imported_cursor.fetchall()
+
+                # Obtener las columnas de la tabla
+                imported_cursor.execute(f"PRAGMA table_info({table_name})")
+                columns = [col[1] for col in imported_cursor.fetchall()]
+                column_list = ", ".join(columns)
+                placeholders = ", ".join(["?"] * len(columns))
+
+                # Insertar datos en la base de datos actual
+                for row in rows:
+                    self.cursor.execute(f"INSERT OR IGNORE INTO {table_name} ({column_list}) VALUES ({placeholders})", row)
+
+            self.conn.commit()
+            imported_conn.close()
+
+            # Recargar los datos en la lista de categorías
+            self.update_category_list()
+
+
+            messagebox.showinfo("Éxito", "Los datos de la base de datos importada se fusionaron correctamente.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al fusionar la base de datos: {e}")
+
+
 
 
 
