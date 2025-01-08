@@ -72,10 +72,10 @@ class PythonConceptManagerApp:
         button_frame = tk.Frame(self.root)
         button_frame.grid(row=0, column=1, rowspan=2, padx=10, pady=10)
 
-        tk.Button(button_frame, text="Añadir Categoría", command=self.add_category).grid(row=0, column=0, pady=5)
-        tk.Button(button_frame, text="Editar Categoría", command=self.edit_category).grid(row=1, column=0, pady=5)
-        tk.Button(button_frame, text="Eliminar Categoría", command=self.delete_category).grid(row=0, column=1, pady=5)
-        tk.Button(button_frame, text="Ejecutar Categoría", command=self.run_category_code).grid(row=1, column=1, pady=5)
+        tk.Button(button_frame, text="Añadir Concepto", command=self.add_category).grid(row=0, column=0, pady=5)
+        tk.Button(button_frame, text="Editar Concepto", command=self.edit_category).grid(row=1, column=0, pady=5)
+        tk.Button(button_frame, text="Eliminar Concepto", command=self.delete_category).grid(row=0, column=1, pady=5)
+        tk.Button(button_frame, text="Ejecutar Código", command=self.run_category_code).grid(row=1, column=1, pady=5)
 
     def create_menu(self):
         """Crea el menú superior con las opciones Archivo y Preferencias."""
@@ -83,6 +83,8 @@ class PythonConceptManagerApp:
 
         # Menú Archivo
         file_menu = tk.Menu(menu_bar, tearoff=0)
+        file_menu.add_command(label="Ollama", command=self.run_ollama) 
+        file_menu.add_separator()
         file_menu.add_command(label="Exportar a PDF", command=self.export_to_pdf)
         file_menu.add_separator()
         file_menu.add_command(label="Salir", command=self.root.quit)
@@ -95,6 +97,28 @@ class PythonConceptManagerApp:
 
         # Configurar el menú en la ventana principal
         self.root.config(menu=menu_bar)
+    
+    def run_ollama(self):
+        """Verifica si 'ollama' está instalado y ejecuta 'ollama run llama3.2'."""
+        try:
+            # Verificar si el comando 'ollama' está disponible
+            subprocess.run(["ollama", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            
+            # Ejecutar 'ollama run llama3.2' en una nueva terminal
+            if os.name == "nt":  # Windows
+                subprocess.Popen(["start", "cmd", "/c", "ollama run llama3.2"], shell=True)
+            else:  # Linux/Unix
+                subprocess.Popen(["gnome-terminal", "--", "bash", "-c", "ollama run llama3.2"], shell=False)
+
+        except FileNotFoundError:
+            # Mostrar mensaje si 'ollama' no está instalado
+            messagebox.showerror(
+                "Ollama no disponible",
+                "Ollama no está disponible en este sistema.\nPuedes descargarlo desde: https://ollama.com"
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"Se produjo un error al intentar ejecutar Ollama:\n{e}")
+
 
     def export_to_pdf(self):
         """
@@ -266,7 +290,7 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
 
     def add_category(self):
         """Añade una nueva categoría con código opcional."""
-        category_name = simpledialog.askstring("Añadir Categoría", "Introduce el nombre de la categoría:")
+        category_name = simpledialog.askstring("Añadir Concepto", "Introduce el nombre del concepto:")
         if category_name:
             title, code_snippet = self.open_code_editor(category_name)
 
@@ -274,16 +298,16 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
                 self.cursor.execute("INSERT INTO categories (name, code) VALUES (?, ?)", 
                                     (category_name, code_snippet))
                 self.conn.commit()
-                messagebox.showinfo("Éxito", f"Categoría '{category_name}' añadida.")
+                messagebox.showinfo("Éxito", f"Concepto '{category_name}' añadido.")
                 self.update_category_list()
             except sqlite3.IntegrityError:
-                messagebox.showerror("Error", f"La categoría '{category_name}' ya existe.")
+                messagebox.showerror("Error", f"El concepto '{category_name}' ya existe.")
 
     def edit_category(self):
-        """Edita el título o el código de una categoría seleccionada."""
+        """Edita el título o el código de un concepto seleccionado."""
         selected = self.category_listbox.curselection()
         if not selected:
-            messagebox.showwarning("Advertencia", "Selecciona una categoría para editar.")
+            messagebox.showwarning("Advertencia", "Selecciona un concepto para editar.")
             return
 
         old_name = self.category_listbox.get(selected[0])
@@ -300,7 +324,7 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
         if title != old_name:  # Solo verificar si el título ha cambiado
             self.cursor.execute("SELECT COUNT(*) FROM categories WHERE name = ?", (title,))
             if self.cursor.fetchone()[0] > 0:
-                messagebox.showerror("Error", f"La categoría '{title}' ya existe. Elige un nombre diferente.")
+                messagebox.showerror("Error", f"El concepto '{title}' ya existe. Elige un nombre diferente.")
                 return
 
         # Si el título y el código no están vacíos y el título es único, proceder con la actualización
@@ -315,22 +339,22 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
         """Elimina la categoría seleccionada."""
         selected = self.category_listbox.curselection()
         if not selected:
-            messagebox.showwarning("Advertencia", "Selecciona una categoría para eliminar.")
+            messagebox.showwarning("Advertencia", "Selecciona un concepto para eliminar.")
             return
 
         category_name = self.category_listbox.get(selected[0])
-        confirm = messagebox.askyesno("Confirmar", f"¿Estás seguro de eliminar la categoría '{category_name}'?")
+        confirm = messagebox.askyesno("Confirmar", f"¿Estás seguro de eliminar el concepto '{category_name}'?")
         if confirm:
             self.cursor.execute("DELETE FROM categories WHERE name = ?", (category_name,))
             self.conn.commit()
-            messagebox.showinfo("Éxito", f"Categoría '{category_name}' eliminada.")
+            messagebox.showinfo("Éxito", f"Concepto '{category_name}' eliminado.")
             self.update_category_list()
 
     def run_category_code(self):
-        """Ejecuta el código asociado a la categoría seleccionada en una nueva terminal."""
+        """Ejecuta el código asociado al concepto seleccionado en una nueva terminal."""
         selected = self.category_listbox.curselection()
         if not selected:
-            messagebox.showwarning("Advertencia", "Selecciona una categoría para ejecutar el código.")
+            messagebox.showwarning("Advertencia", "Selecciona un concepto para ejecutar el código asociado.")
             return
 
         category_name = self.category_listbox.get(selected[0])
@@ -352,7 +376,7 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
             except Exception as e:
                 messagebox.showerror("Error", f"Error al ejecutar el código: {e}")
         else:
-            messagebox.showinfo("Info", f"La categoría '{category_name}' no tiene código asociado.")
+            messagebox.showinfo("Info", f"El concepto '{category_name}' no tiene código asociado que se puede ejecutar.")
 
 
 
