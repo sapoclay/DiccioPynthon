@@ -191,7 +191,7 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
 
         label_link = tk.Label(about_window, text="Visita el repositorio en GitHub", fg="blue", cursor="hand2")
         label_link.pack(pady=10)
-        label_link.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/tuusuario/tu-repositorio"))
+        label_link.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/sapoclay/DiccioPynthon"))
 
     def update_category_list(self):
         """
