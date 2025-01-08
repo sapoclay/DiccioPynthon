@@ -205,17 +205,7 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
             self.category_listbox.insert(tk.END, category[0])
 
     def open_code_editor(self, category_name="", initial_code=""):
-        """
-        Abre una ventana de edición para modificar tanto el título como el código
-        asociado a una categoría.
-
-        Parámetros:
-            category_name (str): El nombre de la categoría a editar.
-            initial_code (str): El código inicial de la categoría a editar.
-
-        Retorno:
-            tuple: Tupla con el nombre actualizado y el código modificado.
-        """
+        """Abre una ventana dividida para editar tanto el título como el código con formato."""
         editor_window = tk.Toplevel(self.root)
         editor_window.title(f"Añadir/Editar Categoría - {category_name}")
         editor_window.geometry("600x400")
@@ -245,18 +235,34 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
         paned_window.add(code_frame)
 
         saved_title_code = {"title": "", "code": ""}
+        is_saved = False  # Variable para controlar si se ha guardado
 
         def save_code():
             """Guarda el título y el código con formato."""
             saved_title_code["title"] = title_entry.get("1.0", "end-1c")
             saved_title_code["code"] = code_entry.get("1.0", "end-1c")
             editor_window.destroy()
+            nonlocal is_saved
+            is_saved = True  # Indicamos que se ha guardado
 
         save_button = tk.Button(editor_window, text="Guardar", command=save_code)
         save_button.pack(pady=10)
 
-        editor_window.wait_window()
+        # Función que controla el cierre de la ventana
+        def on_close():
+            if not is_saved:  # Si no se ha guardado
+                # Mostrar un mensaje de confirmación
+                confirm = messagebox.askyesno("Confirmar", "¿Seguro que deseas salir sin guardar los cambios?")
+                if confirm:
+                    editor_window.destroy()  # Cerrar la ventana
+            else:
+                editor_window.destroy()  # Si ya se guardó, se cierra normalmente
+
+        editor_window.protocol("WM_DELETE_WINDOW", on_close)  # Interceptar el evento de cierre
+
+        editor_window.wait_window()  # Esperar que se cierre la ventana
         return saved_title_code["title"], saved_title_code["code"]
+
 
     def add_category(self):
         """Añade una nueva categoría con código opcional."""
@@ -284,10 +290,26 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
         self.cursor.execute("SELECT code FROM categories WHERE name = ?", (old_name,))
         current_code = self.cursor.fetchone()[0] or ""
         title, new_code = self.open_code_editor(old_name, current_code)
+
+        # Verificar si el usuario cerró la ventana sin realizar cambios
+        if title == "" or new_code == "":
+            messagebox.showwarning("Advertencia", "El título o el código no pueden estar vacíos.")
+            return
+
+        # Verificar si el nuevo título ya existe
+        if title != old_name:  # Solo verificar si el título ha cambiado
+            self.cursor.execute("SELECT COUNT(*) FROM categories WHERE name = ?", (title,))
+            if self.cursor.fetchone()[0] > 0:
+                messagebox.showerror("Error", f"La categoría '{title}' ya existe. Elige un nombre diferente.")
+                return
+
+        # Si el título y el código no están vacíos y el título es único, proceder con la actualización
         self.cursor.execute("UPDATE categories SET name = ?, code = ? WHERE name = ?", (title, new_code, old_name))
         self.conn.commit()
         messagebox.showinfo("Éxito", f"Categoría '{old_name}' actualizada.")
         self.update_category_list()
+
+
 
     def delete_category(self):
         """Elimina la categoría seleccionada."""
