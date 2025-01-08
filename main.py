@@ -345,11 +345,9 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
                     temp_file.write(str(code_snippet))  # Convertimos el código a str si es necesario
 
                 if os.name == "nt": 
-                    # Ejecutar en Windows y cerrar la terminal al finalizar
                     subprocess.Popen(["start", "cmd", "/c", f"python {temp_filename}"], shell=True)
                 else:
-                    # Ejecutar en Linux y cerrar la terminal al finalizar
-                    subprocess.Popen(["gnome-terminal", "--", "bash", "-c", f"python3 {temp_filename}"], shell=False)
+                    subprocess.Popen(["gnome-terminal", "--", "bash", "-c", f"python3 {temp_filename} && read -p 'Press any key to continue...'"], shell=False)
 
             except Exception as e:
                 messagebox.showerror("Error", f"Error al ejecutar el código: {e}")
