@@ -98,6 +98,7 @@ def apply_update():
         messagebox.showerror("Error", "No se encontró la carpeta de actualización.")  # Solo se muestra si realmente falta
     shutil.rmtree(TEMP_FOLDER)
 
+
 def check_for_updates():
     """Verifica si hay una actualización disponible y la aplica."""
     remote_version = get_remote_version()
