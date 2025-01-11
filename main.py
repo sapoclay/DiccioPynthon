@@ -39,6 +39,11 @@ class PythonConceptManagerApp:
         self.conn = sqlite3.connect("conceptos.db")
         self.cursor = self.conn.cursor()
         self.setup_database()
+        
+        # Variable para controlar la búsqueda
+        self.search_var = tk.StringVar()
+        self.filtered_categories = []  # Almacena las categorías filtradas
+
 
         # Widgets de la interfaz
         self.create_widgets()
@@ -65,6 +70,13 @@ class PythonConceptManagerApp:
         Crea los widgets de la interfaz gráfica para mostrar la lista de categorías
         y los botones de acción.
         """
+        # Caja de búsqueda
+        tk.Label(self.root, text="Buscar Categorías:").grid(row=0, column=0, sticky="w", padx=10, pady=(10, 0))
+        search_entry = tk.Entry(self.root, textvariable=self.search_var)
+        search_entry.grid(row=1, column=0, sticky="ew", padx=10, pady=(0, 10))
+        search_entry.bind("<<KeyRelease>>", self.filter_categories)
+
+        # Listbox para las categorías
         self.category_listbox = tk.Listbox(self.root, height=15, width=40)
         self.category_listbox.grid(row=0, column=0, rowspan=4, padx=10, pady=10)
 
@@ -76,7 +88,56 @@ class PythonConceptManagerApp:
         tk.Button(button_frame, text="Editar Concepto", command=self.edit_category).grid(row=1, column=0, pady=5)
         tk.Button(button_frame, text="Eliminar Concepto", command=self.delete_category).grid(row=0, column=1, pady=5)
         tk.Button(button_frame, text="Ejecutar Código", command=self.run_category_code).grid(row=1, column=1, pady=5)
+        tk.Button(button_frame, text="Buscar Concepto", command=self.search_category_dialog).grid(row=2, column=0, pady=5)
 
+    def search_category_dialog(self):
+        """Muestra un cuadro de diálogo para buscar categorías por nombre."""
+        search_term = simpledialog.askstring("Buscar Concepto", "Introduce el término de búsqueda:")
+        if search_term:
+            self.search_category(search_term)
+    
+    def search_category(self, search_term):
+        """Filtra la lista de categorías según el término de búsqueda."""
+        self.category_listbox.delete(0, tk.END)
+        search_term = f"%{search_term.lower()}%"
+        self.cursor.execute("SELECT name FROM categories WHERE LOWER(name) LIKE ?", (search_term,))
+        categories = self.cursor.fetchall()
+        for category in categories:
+            self.category_listbox.insert(tk.END, category[0])
+        if not categories:
+            messagebox.showinfo("Sin resultados", "No se encontraron categorías que coincidan con la búsqueda.")
+            
+    def filter_categories(self, event=None):
+        """
+        Filtra las categorías en función del texto ingresado en la caja de búsqueda.
+        """
+        search_text = self.search_var.get().lower()
+        self.filtered_categories = []
+
+        # Filtrar las categorías que coinciden con el texto ingresado
+        self.cursor.execute("SELECT name FROM categories")
+        categories = [category[0] for category in self.cursor.fetchall()]
+
+        self.filtered_categories = [
+            category for category in categories if search_text in category.lower()
+        ]
+
+        # Actualizar el contenido de la lista
+        self.category_listbox.delete(0, tk.END)
+        for category in self.filtered_categories:
+            self.category_listbox.insert(tk.END, category)
+
+    def update_category_list(self):
+        """
+        Actualiza la lista de categorías en la interfaz, recuperando los nombres
+        desde la base de datos.
+        """
+        self.category_listbox.delete(0, tk.END)
+        self.cursor.execute("SELECT name FROM categories")
+        categories = self.cursor.fetchall()
+        for category in categories:
+            self.category_listbox.insert(tk.END, category[0])
+            
     def create_menu(self):
         """Crea el menú superior con las opciones Archivo y Preferencias."""
         menu_bar = tk.Menu(self.root)
@@ -216,8 +277,8 @@ class PythonConceptManagerApp:
         label_img.image = img  # Necesario para mantener la referencia de la imagen
         label_img.pack(pady=10)
 
-        description = """Esta aplicación gestiona categorías y conceptos de Python.
-Permite añadir, editar, eliminar y ejecutar código Python asociado a diferentes categorías."""
+        description = """Esta aplicación permite al usuario gestionar conceptos y códigos de Python.
+Permite añadir, editar, eliminar y ejecutar códigos Python asociados los conceptos guardados."""
         label_description = tk.Label(about_window, text=description, justify="center", wraplength=350)
         label_description.pack(pady=10)
 
@@ -248,6 +309,11 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
 
         # Título con barra de desplazamiento vertical
         title_frame = tk.Frame(paned_window)
+        
+        # Título encima de la caja de texto
+        title_label = tk.Label(title_frame, text="CONCEPTO A GUARDAR", font=("Arial", 10, "bold"))
+        title_label.pack(anchor="w", padx=5, pady=2)
+
         title_scrollbar = tk.Scrollbar(title_frame, orient=tk.VERTICAL)
         title_entry = tk.Text(title_frame, wrap="word", height=10, width=30, yscrollcommand=title_scrollbar.set)
         title_scrollbar.config(command=title_entry.yview)
@@ -258,6 +324,11 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
 
         # Código con barra de desplazamiento vertical
         code_frame = tk.Frame(paned_window)
+        
+        # Título encima de la caja de texto
+        code_label = tk.Label(code_frame, text="CÓDIGO ASOCIADO AL CONCEPTO", font=("Arial", 10, "bold"))
+        code_label.pack(anchor="w", padx=5, pady=2)
+
         code_scrollbar = tk.Scrollbar(code_frame, orient=tk.VERTICAL)
         code_entry = tk.Text(code_frame, wrap="word", height=10, width=30, yscrollcommand=code_scrollbar.set)
         code_scrollbar.config(command=code_entry.yview)
@@ -268,6 +339,7 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
 
         saved_title_code = {"title": "", "code": ""}
         is_saved = False  # Variable para controlar si se ha guardado
+
 
         def save_code():
             """Guarda el título y el código con formato."""
@@ -324,8 +396,8 @@ Permite añadir, editar, eliminar y ejecutar código Python asociado a diferente
         title, new_code = self.open_code_editor(old_name, current_code)
 
         # Verificar si el usuario cerró la ventana sin realizar cambios
-        if title == "" or new_code == "":
-            messagebox.showwarning("Advertencia", "El título o el código no pueden estar vacíos.")
+        if title == "":
+            messagebox.showwarning("Advertencia", "El título no pueden estar vacíos.")
             return
 
         # Verificar si el nuevo título ya existe
