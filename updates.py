@@ -1,43 +1,21 @@
 import requests
-import zipfile
 import os
+import zipfile
 import shutil
-import sys
 import tkinter as tk
 from tkinter import messagebox
-
+from pathlib import Path
+import sys
+import subprocess
 
 class GitHubUpdater:
     def __init__(self, repo_owner, repo_name, local_commit_hash):
-        """
-        Inicializa el actualizador de GitHub.
-        :param repo_owner: El propietario del repositorio (nombre de usuario u organización).
-        :param repo_name: El nombre del repositorio.
-        :param local_commit_hash: El hash del último commit local.
-        """
         self.repo_owner = repo_owner
         self.repo_name = repo_name
         self.local_commit_hash = local_commit_hash
         self.api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits/main"
-        self.download_url = f"https://github.com/{repo_owner}/{repo_name}/archive/refs/heads/main.zip"
-        self.temp_zip_path = "latest_version.zip"
-        self.temp_extract_path = "latest_version"
-
-    def show_message(self, title, message):
-        """
-        Muestra un mensaje en una ventana emergente.
-        :param title: El título de la ventana.
-        :param message: El mensaje a mostrar.
-        """
-        root = tk.Tk()
-        root.withdraw()  # Ocultar la ventana principal
-        messagebox.showinfo(title, message)
 
     def check_for_updates(self):
-        """
-        Verifica si hay actualizaciones disponibles en el repositorio.
-        :return: True si hay actualizaciones, False si el código local está actualizado.
-        """
         try:
             response = requests.get(self.api_url)
             response.raise_for_status()
@@ -47,81 +25,61 @@ class GitHubUpdater:
                 self.show_message("Actualización disponible", "Hay una nueva actualización disponible.")
                 return True
             else:
-                self.show_message("Sin actualizaciones", "No hay actualizaciones disponibles.")
+                self.show_message("Sin actualizaciones", "El código local está actualizado.")
                 return False
         except requests.RequestException as e:
             self.show_message("Error", f"Error al verificar actualizaciones: {e}")
             return False
 
-    def download_latest_version(self):
-        """
-        Descarga la última versión del repositorio como un archivo ZIP.
-        """
+    def download_latest_version(self, download_path="latest_code.zip"):
+        url = f"https://github.com/{self.repo_owner}/{self.repo_name}/archive/refs/heads/main.zip"
+        download_path = Path(download_path)
         try:
-            response = requests.get(self.download_url, stream=True)
+            response = requests.get(url)
             response.raise_for_status()
-            with open(self.temp_zip_path, "wb") as file:
-                for chunk in response.iter_content(chunk_size=1024):
-                    file.write(chunk)
-            self.show_message("Descarga completada", f"Última versión descargada en {self.temp_zip_path}")
+            with open(download_path, "wb") as file:
+                file.write(response.content)
+            self.show_message("Descarga completada", f"Última versión descargada en {download_path}")
+            return download_path
         except requests.RequestException as e:
             self.show_message("Error", f"Error al descargar la última versión: {e}")
-            return False
-        return True
+            return None
 
-    def extract_and_update_files(self):
-        """
-        Extrae el archivo ZIP descargado, sobrescribe los archivos locales y elimina temporales.
-        """
+    def install_update(self, zip_path):
         try:
-            with zipfile.ZipFile(self.temp_zip_path, "r") as zip_ref:
-                zip_ref.extractall(self.temp_extract_path)
+            # Descomprimir el archivo
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall("update_temp")
+            
+            # Sobrescribir archivos
+            src_dir = Path("update_temp").joinpath(f"{self.repo_name}-main")
+            for item in src_dir.iterdir():
+                target = Path.cwd() / item.name
+                if target.is_dir():
+                    shutil.rmtree(target)
+                shutil.move(str(item), str(target))
 
-            extracted_folder = os.path.join(self.temp_extract_path, f"{self.repo_name}-main")
+            # Eliminar archivos temporales
+            shutil.rmtree("update_temp")
+            zip_path.unlink()
 
-            for item in os.listdir(extracted_folder):
-                s = os.path.join(extracted_folder, item)
-                d = os.path.join(os.getcwd(), item)
-                if os.path.isdir(s):
-                    if os.path.exists(d):
-                        shutil.rmtree(d)
-                    shutil.copytree(s, d)
-                else:
-                    shutil.copy2(s, d)
-            self.show_message("Actualización completada", "Los archivos locales se actualizaron con éxito.")
+            self.show_message("Actualización completada", "La actualización se instaló correctamente. El programa se reiniciará.")
+            self.restart_program()
+
         except Exception as e:
-            self.show_message("Error", f"Error al actualizar archivos locales: {e}")
-        finally:
-            self.clean_up()
+            self.show_message("Error", f"Error al instalar la actualización: {e}")
 
-    def clean_up(self):
-        """
-        Elimina archivos temporales generados durante la actualización.
-        """
-        if os.path.exists(self.temp_zip_path):
-            os.remove(self.temp_zip_path)
-        if os.path.exists(self.temp_extract_path):
-            shutil.rmtree(self.temp_extract_path)
-        self.show_message("Limpieza completada", "Los archivos temporales se eliminaron correctamente.")
-
-    def restart_application(self):
-        """
-        Reinicia la aplicación cerrándola y volviéndola a ejecutar.
-        """
+    def restart_program(self):
         try:
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
+            if sys.platform == "win32":
+                subprocess.Popen(f"python {sys.argv[0]}", shell=True)
+            else:
+                os.execv(sys.executable, ['python'] + sys.argv)
+            sys.exit()
         except Exception as e:
-            self.show_message("Error", f"Error al reiniciar la aplicación: {e}")
+            self.show_message("Error", f"No se pudo reiniciar la aplicación: {e}")
 
-    def update(self):
-        """
-        Realiza el proceso completo de actualización: verifica, descarga, actualiza y reinicia.
-        """
-        if self.check_for_updates():
-            if self.download_latest_version():
-                self.extract_and_update_files()
-                self.show_message("Reiniciando", "La aplicación se reiniciará ahora.")
-                self.restart_application()
-        else:
-            self.show_message("Sin actualizaciones", "No se encontraron actualizaciones.")
+    def show_message(self, title, message):
+        root = tk.Tk()
+        root.withdraw()  # Ocultar la ventana principal de Tkinter
+        messagebox.showinfo(title, message)
