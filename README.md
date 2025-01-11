@@ -17,7 +17,8 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Importar BD: El programa permite ahora importar otra base de datos creada con este mismo problema. La base de datos importada se fusionará con la actual.
 - Tutoriales básicos Python: Añadido un enlace al repositorio en el que voy dejando tutoriales básicos de Python.
 - Funcionalidad Búsqueda: Añadida la funcionalidad de búsqueda para buscar entre los conceptos guardados.
-
+- Actualizaciones: Se ha añadido la funcionalidad de actualizar el programa cuando se publique una nueva versión.
+  
 ### Requisitos
 
 - Python 3.x

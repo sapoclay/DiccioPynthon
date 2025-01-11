@@ -4,6 +4,8 @@ import os
 import shutil
 import tkinter as tk
 from tkinter import messagebox, ttk
+import subprocess
+import sys
 
 GITHUB_REPO_URL = "https://github.com/sapoclay/DiccioPynthon"
 VERSION_URL = f"{GITHUB_REPO_URL}/raw/main/version.txt"
@@ -57,9 +59,23 @@ def download_and_extract_zip(progress_bar):
         if os.path.exists("update.zip"):
             os.remove("update.zip")
 
+def restart_program():
+    """Reinicia el programa actual."""
+    python = sys.executable
+    subprocess.Popen([python] + sys.argv)
+    sys.exit()
+
 def apply_update():
     """Reemplaza los archivos locales con los archivos actualizados."""
-    update_folder = os.path.join(TEMP_FOLDER, "DiccioPynthon")  
+    # Verificar la carpeta extraída dentro del directorio temporal
+    extracted_folders = os.listdir(TEMP_FOLDER)  # Listar contenido de TEMP_FOLDER
+    if len(extracted_folders) == 1:
+        update_folder = os.path.join(TEMP_FOLDER, extracted_folders[0])  # Detectar carpeta dinámica
+    else:
+        messagebox.showerror("Error", "No se pudo determinar la carpeta de actualización.")
+        shutil.rmtree(TEMP_FOLDER)
+        return
+
     if os.path.exists(update_folder):
         for item in os.listdir(update_folder):
             src = os.path.join(update_folder, item)
@@ -73,7 +89,7 @@ def apply_update():
                 shutil.copy2(src, dest)
         messagebox.showinfo("Actualización", "Actualización aplicada correctamente.")
     else:
-        messagebox.showerror("Error", "No se encontró la carpeta de actualización.")
+        messagebox.showerror("Error", "No se encontró la carpeta de actualización.")  # Solo se muestra si realmente falta
     shutil.rmtree(TEMP_FOLDER)
 
 def check_for_updates():
@@ -105,7 +121,8 @@ def check_for_updates():
             # Actualizar el archivo de versión local
             with open(LOCAL_VERSION_FILE, "w") as file:
                 file.write(remote_version)
-            messagebox.showinfo("Actualización", "Actualización completada. Reinicia la aplicación.")
+            messagebox.showinfo("Actualización", "Reiniciando la aplicación.")
+            restart_program()
     else:
         messagebox.showinfo("Actualización", "La aplicación ya está actualizada.")
 
