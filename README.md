@@ -1,10 +1,12 @@
 ## DiccioPynthon
 
-![about-diccio-pynthon](https://github.com/user-attachments/assets/300a3e50-1984-4390-ba7a-564fda650767)
+![about-diccioPynthon](https://github.com/user-attachments/assets/3d553135-a561-49f3-95f6-45d99ecde4aa)
 
 DiccioPynthon es una aplicación de gestión de categorías y conceptos de Python. Permite añadir, editar, eliminar y ejecutar fragmentos de código Python asociados a diferentes categorías. Además, ofrece la posibilidad de exportar las categorías a un archivo PDF y administrar el contenido de manera eficiente con una interfaz gráfica basada en Tkinter.
 
 ## Funcionalidades
+
+![DiccioPynthon](https://github.com/user-attachments/assets/d340b9e8-208c-4ad1-b770-d10bb281466d)
 
 - Añadir Categoría: Permite agregar una nueva categoría con su respectivo fragmento de código.
 - Editar Categoría: Puedes modificar tanto el nombre como el código de las categorías existentes.
