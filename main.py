@@ -92,6 +92,8 @@ class PythonConceptManagerApp:
 
         # Menú Preferencias
         preferences_menu = tk.Menu(menu_bar, tearoff=0)
+        preferences_menu.add_command(label="Tutoriales Básicos", command=self.abrir_tutoriales)
+        preferences_menu.add_separator()
         preferences_menu.add_command(label="Importar BD", command=self.fusionar_base_datos)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="About", command=self.show_about)
@@ -121,7 +123,11 @@ class PythonConceptManagerApp:
         except Exception as e:
             messagebox.showerror("Error", f"Se produjo un error al intentar ejecutar Ollama:\n{e}")
 
-
+    def abrir_tutoriales(self):
+        """Abre un enlace de tutoriales en el navegador"""
+        enlace_tutoriales = "https://github.com/sapoclay/basicos-python"
+        webbrowser.open(enlace_tutoriales)
+        
     def export_to_pdf(self):
         """
         Exporta el contenido de la base de datos a un archivo PDF.
