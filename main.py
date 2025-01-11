@@ -284,8 +284,21 @@ class PythonConceptManagerApp:
         label_img.image = img  # Necesario para mantener la referencia de la imagen
         label_img.pack(pady=10)
 
-        description = """Esta aplicación permite al usuario gestionar conceptos y códigos de Python.
-Permite añadir, editar, eliminar y ejecutar códigos Python asociados los conceptos guardados."""
+        def get_local_version():
+            """Obtiene la versión local del archivo version.txt."""
+            try:
+                with open("version.txt", "r") as file:
+                    return file.read().strip()
+            except FileNotFoundError:
+                return "Versión no disponible"
+
+        # Obtener la versión local
+        local_version = get_local_version()
+
+        # Descripción con la versión
+        description = f"""Esta aplicación permite al usuario \ngestionar conceptos y códigos de Python.
+        Permite añadir, editar, eliminar y ejecutar códigos Python asociados a los conceptos guardados.
+        \nVersión: {local_version}"""
         label_description = tk.Label(about_window, text=description, justify="center", wraplength=350)
         label_description.pack(pady=10)
 
