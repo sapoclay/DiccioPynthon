@@ -31,33 +31,39 @@ def get_local_version():
     return None
 
 def download_and_extract_zip(progress_bar):
-    """Descarga y extrae el archivo ZIP de la actualización con barra de progreso."""
+    """Descarga y extrae el archivo ZIP de la actualización, con barra de progreso."""
     try:
         response = requests.get(ZIP_URL, stream=True)
         response.raise_for_status()
-        total_size = int(response.headers.get("content-length", 0))
-        chunk_size = 1024
-        downloaded = 0
 
-        with open("update.zip", "wb") as file:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:
+        # Obtén el tamaño total desde los encabezados
+        total_size = int(response.headers.get("Content-Length", 0))
+
+        # Descarga el archivo como main.zip
+        downloaded = 0
+        with open("main.zip", "wb") as file:
+            for chunk in response.iter_content(chunk_size=1024):  # Descarga en bloques de 1 KB
+                if chunk:  # Evitar bloques vacíos
                     file.write(chunk)
                     downloaded += len(chunk)
-                    progress = (downloaded / total_size) * 100
-                    progress_bar["value"] = progress
-                    progress_bar.update()
 
-        with zipfile.ZipFile("update.zip", "r") as zip_ref:
+                    # Actualiza la barra de progreso si total_size es válido
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        progress_bar["value"] = progress
+                        progress_bar.update()
+
+        # Extraer el archivo ZIP descargado
+        with zipfile.ZipFile("main.zip", "r") as zip_ref:
             zip_ref.extractall(TEMP_FOLDER)
-        messagebox.showinfo("Actualización", "Actualización descargada y extraída correctamente.")
+        print("Actualización descargada y extraída correctamente.")
     except requests.RequestException as e:
-        messagebox.showerror("Error", f"Error al descargar la actualización.\n{e}")
+        print(f"Error al descargar la actualización: {e}")
     except zipfile.BadZipFile as e:
-        messagebox.showerror("Error", f"Error al extraer el archivo ZIP.\n{e}")
+        print(f"Error al extraer el archivo ZIP: {e}")
     finally:
-        if os.path.exists("update.zip"):
-            os.remove("update.zip")
+        if os.path.exists("main.zip"):
+            os.remove("main.zip")
 
 def restart_program():
     """Reinicia el programa actual."""
