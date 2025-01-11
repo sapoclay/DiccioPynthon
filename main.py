@@ -10,6 +10,7 @@ from PIL import Image, ImageTk  # Necesario para redimensionar la imagen
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
+from updates import check_for_updates
 
 class PythonConceptManagerApp:
     """
@@ -90,6 +91,10 @@ class PythonConceptManagerApp:
         tk.Button(button_frame, text="Ejecutar Código", command=self.run_category_code).grid(row=1, column=1, pady=5)
         tk.Button(button_frame, text="Buscar Concepto", command=self.search_category_dialog).grid(row=2, column=0, pady=5)
 
+    def open_update_manager(self, event=None):
+        """Inicia el gestor de actualizaciones."""
+        check_for_updates()
+        
     def search_category_dialog(self):
         """Muestra un cuadro de diálogo para buscar categorías por nombre."""
         search_term = simpledialog.askstring("Buscar Concepto", "Introduce el término de búsqueda:")
@@ -156,6 +161,8 @@ class PythonConceptManagerApp:
         preferences_menu.add_command(label="Tutoriales Básicos", command=self.abrir_tutoriales)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="Importar BD", command=self.fusionar_base_datos)
+        preferences_menu.add_separator()
+        preferences_menu.add_command(label="Buscar Actualizaciones", command=self.open_update_manager)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="About", command=self.show_about)
         menu_bar.add_cascade(label="Preferencias", menu=preferences_menu)
