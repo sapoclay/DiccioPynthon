@@ -28,6 +28,7 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Pillow: Librería de Python para trabajar con imágenes.
 - ReportLab: Librería para generar archivos PDF.
 - SQLite: Base de datos integrada en Python para almacenar categorías y códigos.
+- Requests: Una herramienta esencial para interactuar con servicios web.
 
 ## Uso
 
