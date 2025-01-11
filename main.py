@@ -10,7 +10,6 @@ from PIL import Image, ImageTk  # Necesario para redimensionar la imagen
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from updates import GitHubUpdater
 
 class PythonConceptManagerApp:
     """
@@ -33,16 +32,6 @@ class PythonConceptManagerApp:
         Parámetros:
             root (Tk): La ventana principal de la aplicación.
         """
-        try:
-            with open("version.txt", "r") as version_file:
-                self.local_commit_hash = version_file.read().strip()
-        except FileNotFoundError:
-            self.local_commit_hash = ""
-            messagebox.showwarning(
-                "Advertencia",
-                "No se encontró el archivo 'version.txt'. El sistema no podrá verificar actualizaciones correctamente."
-            )
-                    
         self.root = root
         self.root.title("DiccioPynthon")  # Título de la aplicación
 
@@ -167,8 +156,6 @@ class PythonConceptManagerApp:
         preferences_menu.add_command(label="Tutoriales Básicos", command=self.abrir_tutoriales)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="Importar BD", command=self.fusionar_base_datos)
-        preferences_menu.add_separator()
-        preferences_menu.add_command(label="Buscar Actualizaciones", command=self.buscar_actualizaciones)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="About", command=self.show_about)
         menu_bar.add_cascade(label="Preferencias", menu=preferences_menu)
@@ -520,28 +507,7 @@ Permite añadir, editar, eliminar y ejecutar códigos Python asociados los conce
             messagebox.showerror("Error", f"Ocurrió un error al fusionar la base de datos: {e}")
 
 
-    def buscar_actualizaciones(self):
-        """Busca actualizaciones desde el repositorio de GitHub."""
-        # Configuración del actualizador
-        repo_owner = "sapoclay"  # Reemplaza con tu usuario de GitHub.
-        repo_name = "DiccioPynthon"  # Reemplaza con el nombre del repositorio.
 
-        updater = GitHubUpdater(repo_owner, repo_name, self.local_commit_hash)
-        try:
-            hay_actualizaciones = updater.check_for_updates()
-
-            if hay_actualizaciones:
-                respuesta = messagebox.askyesno(
-                    "Actualización Disponible",
-                    "Hay una nueva versión disponible. ¿Deseas descargarla?"
-                )
-                if respuesta:
-                    updater.download_latest_version()
-                    messagebox.showinfo("Actualización", "La última versión ha sido descargada.")
-            else:
-                messagebox.showinfo("Actualización", "El código está actualizado.")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al buscar actualizaciones: {str(e)}")
 
 
 if __name__ == "__main__":
