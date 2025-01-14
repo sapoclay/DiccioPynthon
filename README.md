@@ -20,6 +20,7 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Tutoriales básicos Python: Añadido un enlace al repositorio en el que voy dejando tutoriales básicos de Python.
 - Funcionalidad Búsqueda: Añadida la funcionalidad de búsqueda para buscar entre los conceptos guardados.
 - Actualizaciones: Se ha añadido la funcionalidad de actualizar el programa cuando se publique una nueva versión.
+- Opciones de búsqueda en documentación: Acabo de añadir opciones de búsqueda para que el usuario pueda buscar en la documentación oficial de Python y en Pypi para buscar paquetes de Python. Estas búsquedas abrirán el navegador web predeterminado del sistema.
   
 ### Requisitos
 
@@ -29,6 +30,18 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - ReportLab: Librería para generar archivos PDF.
 - SQLite: Base de datos integrada en Python para almacenar categorías y códigos.
 - Requests: Una herramienta esencial para interactuar con servicios web.
+
+#### En Ubuntu también son necesarios:
+
+- Será necesario tener instalado en nuestro sistema:
+```
+sudo apt install python3-pip
+```
+... y también tendremos que tener instalada la dependencia para crear entornos virtuales en Ubuntu:
+
+```
+sudo apt install python3-venv
+```
 
 ## Uso
 

@@ -95,6 +95,24 @@ class PythonConceptManagerApp:
         """Inicia el gestor de actualizaciones."""
         check_for_updates()
         
+    def search_python_docs(self):
+        """Abre una ventana para buscar en la documentación oficial de Python."""
+        query = simpledialog.askstring("Buscar en la Documentación", "Introduce el término a buscar:")
+        if query:
+            search_url = f"https://docs.python.org/3/search.html?q={query}"
+            webbrowser.open(search_url)
+        else:
+            messagebox.showinfo("Búsqueda cancelada", "No se introdujo ningún término.")
+    
+    def search_python_packages(self):
+        """Abre una ventana para buscar paquetes de Python."""
+        query = simpledialog.askstring("Buscar en PyPi", "Introduce paquete Python a buscar:")
+        if query:
+            search_url = f"https://pypi.org/search/?q={query}"
+            webbrowser.open(search_url)
+        else:
+            messagebox.showinfo("Búsqueda cancelada", "No se introdujo el nombre de ningún paquete.")
+    
     def search_category_dialog(self):
         """Muestra un cuadro de diálogo para buscar categorías por nombre."""
         search_term = simpledialog.askstring("Buscar Concepto", "Introduce el término de búsqueda:")
@@ -158,14 +176,22 @@ class PythonConceptManagerApp:
 
         # Menú Preferencias
         preferences_menu = tk.Menu(menu_bar, tearoff=0)
-        preferences_menu.add_command(label="Tutoriales Básicos", command=self.abrir_tutoriales)
-        preferences_menu.add_separator()
+
         preferences_menu.add_command(label="Importar BD", command=self.fusionar_base_datos)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="Buscar Actualizaciones", command=self.open_update_manager)
         preferences_menu.add_separator()
         preferences_menu.add_command(label="About", command=self.show_about)
         menu_bar.add_cascade(label="Preferencias", menu=preferences_menu)
+        
+        # Menú Python
+        menu_python = tk.Menu(menu_bar, tearoff=0)
+        menu_python.add_command(label="Tutoriales Básicos", command=self.abrir_tutoriales)
+        menu_python.add_separator()
+        menu_python.add_command(label="Buscar en Documentación Python", command=self.search_python_docs)
+        menu_python.add_separator()
+        menu_python.add_command(label="Buscar Paquetes Python", command=self.search_python_packages) 
+        menu_bar.add_cascade(label="Python", menu=menu_python)
 
         # Configurar el menú en la ventana principal
         self.root.config(menu=menu_bar)
