@@ -25,7 +25,13 @@ def instalar_dependencias():
 def ejecutar_main():
     print("Ejecutando main.py...")
     python_path = os.path.join("venv", "Scripts", "python") if os.name == "nt" else os.path.join("venv", "bin", "python")
-    subprocess.run([python_path, "main.py"], check=True)
+    project_root = os.path.abspath(".")  # Directorio raíz del proyecto
+    env = {**os.environ, "PYTHONPATH": project_root}  # PYTHONPATH al entorno
+    subprocess.run(
+        [python_path, "main.py"],
+        check=True,
+        env=env
+    )
 
 if __name__ == "__main__":
     # Verificar si el entorno virtual ya existe
