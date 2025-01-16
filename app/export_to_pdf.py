@@ -4,15 +4,15 @@ from reportlab.lib import colors
 import tkinter.filedialog as filedialog
 from tkinter import messagebox   
 
-def export_to_pdf(app):
+def export_to_pdf(db_actions):
     """
     Exporta el contenido de la base de datos a un archivo PDF.
     
     Recupera todas las categorías y sus códigos asociados y crea un archivo
     PDF con el contenido formateado.
     """
-    # Usar la instancia 'app' para llamar a 'fetch_categories_from_db'
-    categories = app.fetch_categories_from_db()
+    # Usar la instancia 'db_actions' para llamar a 'fetch_categories_from_db'
+    categories = db_actions.fetch_categories_from_db()
 
     # Cuadro de diálogo para seleccionar la ubicación y nombre del archivo
     pdf_filename = filedialog.asksaveasfilename(

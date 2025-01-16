@@ -12,7 +12,7 @@ def create_menu(self, open_update_manager):
         file_menu = tk.Menu(menu_bar, tearoff=0) # tearoff=0 elimina la línea punteada
         file_menu.add_command(label="Ollama", command=lambda: run_ollama(self.root)) 
         file_menu.add_separator()
-        file_menu.add_command(label="Exportar a PDF", command=lambda: export_to_pdf(self))
+        file_menu.add_command(label="Exportar a PDF", command=lambda: export_to_pdf(self.db_actions))
         file_menu.add_separator()
         file_menu.add_command(label="Salir", command=self.root.quit)
         menu_bar.add_cascade(label="Archivo", menu=file_menu)
