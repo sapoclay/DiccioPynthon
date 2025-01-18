@@ -1,7 +1,7 @@
 import tkinter as tk
 from .about import show_about  
 from .ollama import run_ollama 
-from .search import search_python_docs, search_python_packages, abrir_tutoriales
+from app.search import search_python_docs, search_python_packages, abrir_tutoriales
 from .export_to_pdf import export_to_pdf
 from app.themes import apply_theme, apply_theme_and_restart
 
@@ -34,11 +34,11 @@ def create_menu(self, open_update_manager):
 
     # Menú Python
     menu_python = tk.Menu(menu_bar, tearoff=0)
-    menu_python.add_command(label="Tutoriales Básicos", command=lambda: abrir_tutoriales(self.root))
+    menu_python.add_command(label="Tutoriales Básicos", command=abrir_tutoriales)  # Sin lambda
     menu_python.add_separator()
-    menu_python.add_command(label="Buscar en Documentación Python",  command=lambda: search_python_docs(self.root))
+    menu_python.add_command(label="Buscar en Documentación Python", command=search_python_docs)  # Sin lambda
     menu_python.add_separator()
-    menu_python.add_command(label="Buscar Paquetes Python",  command=lambda: search_python_packages(self.root)) 
+    menu_python.add_command(label="Buscar Paquetes Python", command=search_python_packages)  # Sin lambda
     menu_bar.add_cascade(label="Python", menu=menu_python)
 
     # Guardar la referencia al menú
