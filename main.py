@@ -6,6 +6,9 @@ from app.code_editor import open_code_editor
 from app.menu import create_menu
 from app.updates import check_for_updates
 from app.db_actions import DatabaseActions
+from app.config import load_config
+from app.themes import apply_theme
+from app.buttons import create_buttons
 
 class PythonConceptManagerApp:
     """
@@ -23,6 +26,16 @@ class PythonConceptManagerApp:
         self.root = root
         self.root.title("DiccioPython")  # Título de la aplicación
 
+        # Inicialización del tema
+        self.current_theme = load_config()  # Cargar el tema desde el archivo de configuración
+
+        def apply_startup_theme(root):
+            """Carga el tema desde el archivo config.json y lo aplica a la ventana y widgets."""
+            apply_theme(root, self.current_theme)  # Aplicar el tema cargado
+
+        # Llamar a esta función al iniciar la aplicación
+        apply_startup_theme(root)
+   
         # Conexión a la base de datos
         self.db_actions = DatabaseActions("conceptos.db")
 
@@ -36,6 +49,9 @@ class PythonConceptManagerApp:
 
         # Crear el menú de la aplicación
         self.create_menu()
+
+        # Aplicar el tema después de configurar el menú
+        apply_theme(self.root, self.current_theme)
     
     def create_menu(self):
         create_menu(self, self.open_update_manager)
@@ -65,20 +81,14 @@ class PythonConceptManagerApp:
         self.root.grid_columnconfigure(0, weight=1, minsize=200)  # La columna donde está el Listbox
 
         # Crear un marco para los botones en dos columnas
-        button_frame = tk.Frame(self.root)
-        button_frame.grid(row=0, column=2, rowspan=2, padx=10, pady=10)
+        self.button_frame = tk.Frame(self.root)  # Inicialización correcta de button_frame
+        self.button_frame.grid(row=0, column=2, rowspan=2, padx=10, pady=10)
 
-        tk.Button(button_frame, text="Añadir Concepto", command=self.add_category).grid(row=0, column=0, pady=5)
-        tk.Button(button_frame, text="Editar Concepto", command=self.edit_category).grid(row=1, column=0, pady=5)
-        tk.Button(button_frame, text="Eliminar Concepto", command=self.delete_category).grid(row=0, column=1, pady=5)
-        tk.Button(button_frame, text="Ejecutar Código", command=self.run_category_code).grid(row=1, column=1, pady=5)
-        tk.Button(button_frame, text="Buscar Concepto", command=self.search_category_dialog).grid(row=2, column=0, pady=5)
+        # Llamar a la función para crear los botones y pasar el tema actual
+        create_buttons(self, self.button_frame, self.current_theme)
 
-        # Asegúrate de que el resto de las filas y columnas también puedan expandirse según sea necesario
-        self.root.grid_rowconfigure(1, weight=0)  # Fila para la entrada de búsqueda
-        self.root.grid_rowconfigure(2, weight=0)  # Fila para los botones
-        self.root.grid_columnconfigure(1, weight=0)  # Columna para los botones
-        self.root.grid_columnconfigure(2, weight=0)  # Columna para los botones
+        # Aplicar el tema actual a los widgets creados
+        apply_theme(self.root, self.current_theme)
 
         
     def search_category_dialog(self):
@@ -124,12 +134,14 @@ class PythonConceptManagerApp:
         category_name = simpledialog.askstring("Añadir Concepto", "Introduce el nombre del concepto:")
         if category_name:
             title, code_snippet = open_code_editor(self.root, category_name)
-            try:
-                self.db_actions.add_category(title, code_snippet)
-                messagebox.showinfo("Éxito", f"Concepto '{title}' añadido.")
-                self.update_category_list()
-            except ValueError as e:
-                messagebox.showerror("Error", str(e))
+            
+            if title and code_snippet:  # Comprobamos que los valores no estén vacíos
+                try:
+                    self.db_actions.add_category(title, code_snippet)
+                    messagebox.showinfo("Éxito", f"Concepto '{title}' añadido.")
+                    self.update_category_list()
+                except ValueError as e:
+                    messagebox.showerror("Error", str(e))
 
 
     def edit_category(self):

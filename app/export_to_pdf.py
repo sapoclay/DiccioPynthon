@@ -3,6 +3,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 import tkinter.filedialog as filedialog
 from tkinter import messagebox   
+from app.themes import apply_theme
 
 def export_to_pdf(db_actions):
     """

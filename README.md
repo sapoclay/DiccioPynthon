@@ -23,6 +23,8 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Opciones de búsqueda en documentación: Acabo de añadir opciones de búsqueda para que el usuario pueda buscar en la documentación oficial de Python y en Pypi para buscar paquetes de Python. Estas búsquedas abrirán el navegador web predeterminado del sistema.
 - Modularización: Se ha creado módulos para diferentes acciones
 - Pantalla principal: Se adaptó el listview de la lista de conceptos para que sea adaptable al tamaño de la ventana.
+- Solucionado el error al no guardar los datos en el editor de código.
+- Tema claro/oscuro: Se han añadido estas opciones en el menú preferencias.
   
 ### Requisitos
 
