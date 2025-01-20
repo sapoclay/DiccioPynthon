@@ -5,7 +5,7 @@ from pygments import lex
 from pygments.lexers import PythonLexer
 from pygments.styles import get_style_by_name
 from tkinter import filedialog
-from tkinter import PhotoImage
+from app.sangria import on_enter
 
 def open_code_editor(root, category_name="", initial_code="", run_callback=None):
     """Abre una ventana dividida para editar tanto el título como el código con formato."""
@@ -107,7 +107,11 @@ def open_code_editor(root, category_name="", initial_code="", run_callback=None)
     code_scrollbar.pack_forget()  # Ocultar scrollbar
     code_entry.pack(expand=True, fill=tk.BOTH)
     code_entry.insert("1.0", initial_code)
+    
+    # Vinculamos la tecla Enter al método on_enter de sangría
+    code_entry.bind("<Return>", lambda event: on_enter(event, code_entry))
 
+       
     paned_window.add(code_frame)
 
     def update_line_numbers(event=None):
