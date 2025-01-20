@@ -25,6 +25,7 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Pantalla principal: Se adaptó el listview de la lista de conceptos para que sea adaptable al tamaño de la ventana.
 - Solucionado el error al no guardar los datos en el editor de código.
 - Tema claro/oscuro: Se han añadido estas opciones en el menú preferencias.
+- Añadido el contador de líneas en el editor de código. También se han añadido botones de Guardar concepto y cargar código desde un archivo.
   
 ### Requisitos
 
