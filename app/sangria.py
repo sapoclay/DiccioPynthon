@@ -30,7 +30,7 @@ def on_enter(event, code_entry):
     cursor_pos = code_entry.index(tk.INSERT)
     row, col = map(int, cursor_pos.split('.'))
 
-    # Obtener el código completo
+    # Obtener el código completo. 1.0 hace referencia a la posición de inicio en el widget de texto. Línea 1, columna 0. tk.ed se refiere al final del texto en el widget.
     code_text = code_entry.get("1.0", tk.END)
 
     # Obtener la indentación adecuada basada en el contexto
