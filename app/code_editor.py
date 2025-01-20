@@ -7,7 +7,7 @@ from pygments.styles import get_style_by_name
 from tkinter import filedialog
 from tkinter import PhotoImage
 
-def open_code_editor(root, category_name="", initial_code=""):
+def open_code_editor(root, category_name="", initial_code="", run_callback=None):
     """Abre una ventana dividida para editar tanto el título como el código con formato."""
     editor_window = tk.Toplevel(root)  # Usar el parámetro root
     editor_window.title(f"Añadir/Editar Categoría - {category_name}")
@@ -46,7 +46,7 @@ def open_code_editor(root, category_name="", initial_code=""):
     # Ajustar el tamaño de las imágenes a 50x50 píxeles
     load_icon = tk.PhotoImage(file="./img/loadfile.png").subsample(8, 8)  # Ajustar a 50x50 si la imagen original es 200x200
     save_icon = tk.PhotoImage(file="./img/savefile.png").subsample(8, 8)
-
+    run_icon = tk.PhotoImage(file="./img/runcode.png").subsample(8, 8)
 
     # Crear un frame para alinear los botones en la misma línea
     button_frame = tk.Frame(editor_window, bg=bg_color)
@@ -61,6 +61,14 @@ def open_code_editor(root, category_name="", initial_code=""):
     save_button = tk.Button(button_frame, image=save_icon, command=save_code, bg=theme["button_bg"], fg=theme["button_fg"])
     save_button.image = save_icon
     save_button.pack(side=tk.LEFT, padx=5)
+    
+    # Botón para ejecutar el código escrito en el área de texto
+    run_button = tk.Button(button_frame, image=run_icon, 
+                        command=lambda: run_callback(code_entry.get("1.0", tk.END)), 
+                        bg=theme["button_bg"], fg=theme["button_fg"])
+    run_button.image = run_icon
+    run_button.pack(side=tk.LEFT, padx=5)
+
     
     # Crear un PanedWindow para dividir la ventana en dos secciones
     paned_window = tk.PanedWindow(editor_window, orient=tk.HORIZONTAL, bg=bg_color)

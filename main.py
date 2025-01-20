@@ -133,7 +133,7 @@ class PythonConceptManagerApp:
         """Añade una nueva categoría con código opcional."""
         category_name = simpledialog.askstring("Añadir Concepto", "Introduce el nombre del concepto:")
         if category_name:
-            title, code_snippet = open_code_editor(self.root, category_name)
+            title, code_snippet = open_code_editor(self.root, category_name, run_callback=lambda code: self.run_category_code(code))
             
             if title and code_snippet:  # Comprobamos que los valores no estén vacíos
                 try:
@@ -155,7 +155,7 @@ class PythonConceptManagerApp:
         categories = self.db_actions.fetch_categories_from_db()
         current_code = next((code for name, code in categories if name == old_name), "")
 
-        title, new_code = open_code_editor(self.root, old_name, current_code)
+        title, new_code = open_code_editor(self.root, old_name, current_code, run_callback=lambda code: self.run_category_code(code))
 
         if title:
             try:
@@ -181,37 +181,42 @@ class PythonConceptManagerApp:
             self.update_category_list()
 
 
-    def run_category_code(self):
-        """Ejecuta el código asociado al concepto seleccionado en una nueva terminal."""
-        selected = self.category_listbox.curselection()
-        if not selected:
-            messagebox.showwarning("Advertencia", "Selecciona un concepto para ejecutar el código asociado.")
-            return
+    def run_category_code(self, code_snippet=None):
+        """Ejecuta el código asociado al concepto seleccionado o directamente el código proporcionado."""
 
-        category_name = self.category_listbox.get(selected[0])
-        
-        # Obtener las categorías de la base de datos mediante la función fetch_categories_from_db
-        categories = self.db_actions.fetch_categories_from_db()
-        
-        # Buscar el código correspondiente al nombre de la categoría seleccionada
-        code_snippet = next((code for name, code in categories if name == category_name), None)
+        if code_snippet is None:
+            # Caso: ejecutar código desde la ventana principal
+            selected = self.category_listbox.curselection()
+            if not selected:
+                messagebox.showwarning("Advertencia", "Selecciona un concepto para ejecutar el código asociado.")
+                return
 
-        if code_snippet:
-            try:
-                temp_filename = "temp_code.py"
-                # Asegurarse de que el código sea una cadena de texto antes de escribirlo
-                with open(temp_filename, "w", encoding="utf-8") as temp_file:
-                    temp_file.write(str(code_snippet))  # Convertimos el código a str si es necesario
+            category_name = self.category_listbox.get(selected[0])
 
-                if os.name == "nt":  # Para Windows
-                    subprocess.Popen(["start", "cmd", "/c", f"python {temp_filename} & pause"], shell=True)
-                else:  # Para Linux/MacOS
-                    subprocess.Popen(["gnome-terminal", "--", "bash", "-c", f"python3 {temp_filename}; read -p 'Press any key to continue...'"], shell=False)
+            # Obtener las categorías de la base de datos mediante la función fetch_categories_from_db
+            categories = self.db_actions.fetch_categories_from_db()
 
-            except Exception as e:
-                messagebox.showerror("Error", f"Error al ejecutar el código: {e}")
-        else:
-            messagebox.showinfo("Info", f"El concepto '{category_name}' no tiene código asociado que se puede ejecutar.")
+            # Buscar el código correspondiente al nombre de la categoría seleccionada
+            code_snippet = next((code for name, code in categories if name == category_name), None)
+
+            if not code_snippet:
+                messagebox.showinfo("Info", f"El concepto '{category_name}' no tiene código asociado que se pueda ejecutar.")
+                return
+
+        try:
+            temp_filename = "temp_code.py"
+            # Asegurarse de que el código sea una cadena de texto antes de escribirlo
+            with open(temp_filename, "w", encoding="utf-8") as temp_file:
+                temp_file.write(str(code_snippet))  # Convertimos el código a str si es necesario
+
+            if os.name == "nt":  # Para Windows
+                subprocess.Popen(["start", "cmd", "/c", f"python {temp_filename} & pause"], shell=True)
+            else:  # Para Linux/MacOS
+                subprocess.Popen(["gnome-terminal", "--", "bash", "-c", f"python3 {temp_filename}; read -p 'Press any key to continue...'"], shell=False)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al ejecutar el código: {e}")
+
 
     def fusionar_base_datos(self):
         """Llama al método para fusionar bases de datos y actualiza el listado de conceptos."""
