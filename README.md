@@ -1,12 +1,12 @@
 ## DiccioPynthon
 
-![about_diccion_pynthon](https://github.com/user-attachments/assets/af0a06df-ed7a-4aa5-afe6-7f55829ea727)
+![about_diccion_pynthon](https://github.com/user-attachments/assets/5b410ed9-a5de-4f72-9d95-380388d3c146)
 
 DiccioPynthon es una aplicación de gestión de categorías y conceptos de Python. Permite añadir, editar, eliminar y ejecutar fragmentos de código Python asociados a diferentes categorías. Además, ofrece la posibilidad de exportar las categorías a un archivo PDF y administrar el contenido de manera eficiente con una interfaz gráfica basada en Tkinter.
 
 ## Funcionalidades
 
-![diccion_pynthon_theme_dark](https://github.com/user-attachments/assets/5b0e7643-07e6-4cff-8d73-a5c789a99340)
+![diccion_pynthon_083](https://github.com/user-attachments/assets/574d365a-d00a-4175-a38f-ab2e97ff79d2)
 
 - Añadir Categoría: Permite agregar una nueva categoría con su respectivo fragmento de código.
 - Editar Categoría: Puedes modificar tanto el nombre como el código de las categorías existentes.
@@ -25,6 +25,9 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Pantalla principal: Se adaptó el listview de la lista de conceptos para que sea adaptable al tamaño de la ventana.
 - Solucionado el error al no guardar los datos en el editor de código.
 - Tema claro/oscuro: Se han añadido estas opciones en el menú preferencias.
+
+![sintaxis_y_sangria](https://github.com/user-attachments/assets/6b29fa80-f25d-4051-9785-b2b5af867921)
+
 - Añadido el contador de líneas en el editor de código. También se han añadido botones de Guardar concepto y cargar código desde un archivo. Los botones se han reubicado en la parte superior del editor. Se ha añadido resaltado de sintaxis y la posibilidad de ejecutar el código escrito en el editor sin necesidad de ejecutarlo desde la ventana principal del programa.
 - Se ha añadido al editor de código la sangría automática para estructuras de control.
   
