@@ -26,6 +26,42 @@ def open_code_editor(root, category_name="", initial_code=""):
     frame_bg_color = theme["button_bg"]  # Usamos el color del botón para el fondo del frame en tema oscuro
     highlight_color = "#404040" if theme_name == "dark" else "#D3D3D3"  # Color de resaltado para la línea actual
 
+    def save_code():
+        """Guarda el título y el código con formato."""
+        saved_title_code["title"] = title_entry.get("1.0", "end-1c")
+        saved_title_code["code"] = code_entry.get("1.0", "end-1c")
+        nonlocal is_saved
+        is_saved = True  # Indicamos que se ha guardado
+        editor_window.destroy()
+        
+    def load_file():
+        """Carga el contenido de un archivo en el área de código."""
+        file_path = filedialog.askopenfilename(filetypes=[("Python Files", "*.py"), ("Text Files", "*.txt"), ("All Files", "*.*")])
+        if file_path:
+            with open(file_path, "r", encoding="utf-8") as file:
+                code_entry.delete("1.0", tk.END)
+                code_entry.insert("1.0", file.read())
+
+    # Cargar imágenes para los botones con tamaño máximo
+    # Ajustar el tamaño de las imágenes a 50x50 píxeles
+    load_icon = tk.PhotoImage(file="./img/loadfile.png").subsample(8, 8)  # Ajustar a 50x50 si la imagen original es 200x200
+    save_icon = tk.PhotoImage(file="./img/savefile.png").subsample(8, 8)
+
+
+    # Crear un frame para alinear los botones en la misma línea
+    button_frame = tk.Frame(editor_window, bg=bg_color)
+    button_frame.pack(fill="x", padx=10, pady=5, anchor="w")  # Expandir horizontalmente y alinear a la izquierda
+
+    # Botón para cargar archivo con imagen
+    load_button = tk.Button(button_frame, image=load_icon, command=load_file, bg=theme["button_bg"], fg=theme["button_fg"])
+    load_button.image = load_icon  # Evitar que la imagen sea eliminada por el recolector de basura
+    load_button.pack(side=tk.LEFT, padx=5)
+
+    # Botón para guardar archivo con imagen
+    save_button = tk.Button(button_frame, image=save_icon, command=save_code, bg=theme["button_bg"], fg=theme["button_fg"])
+    save_button.image = save_icon
+    save_button.pack(side=tk.LEFT, padx=5)
+    
     # Crear un PanedWindow para dividir la ventana en dos secciones
     paned_window = tk.PanedWindow(editor_window, orient=tk.HORIZONTAL, bg=bg_color)
     paned_window.pack(fill=tk.BOTH, expand=True)
@@ -140,42 +176,6 @@ def open_code_editor(root, category_name="", initial_code=""):
 
     saved_title_code = {"title": "", "code": ""}
     is_saved = False  # Variable para controlar si se ha guardado
-
-    def save_code():
-        """Guarda el título y el código con formato."""
-        saved_title_code["title"] = title_entry.get("1.0", "end-1c")
-        saved_title_code["code"] = code_entry.get("1.0", "end-1c")
-        nonlocal is_saved
-        is_saved = True  # Indicamos que se ha guardado
-        editor_window.destroy()
-        
-    def load_file():
-        """Carga el contenido de un archivo en el área de código."""
-        file_path = filedialog.askopenfilename(filetypes=[("Python Files", "*.py"), ("Text Files", "*.txt"), ("All Files", "*.*")])
-        if file_path:
-            with open(file_path, "r", encoding="utf-8") as file:
-                code_entry.delete("1.0", tk.END)
-                code_entry.insert("1.0", file.read())
-
-    # Cargar imágenes para los botones con tamaño máximo
-    # Ajustar el tamaño de las imágenes a 50x50 píxeles
-    load_icon = tk.PhotoImage(file="./img/loadfile.png").subsample(4, 4)  # Ajustar a 50x50 si la imagen original es 200x200
-    save_icon = tk.PhotoImage(file="./img/savefile.png").subsample(4, 4)
-
-
-    # Crear un frame para alinear los botones en la misma línea
-    button_frame = tk.Frame(editor_window, bg=bg_color)
-    button_frame.pack(pady=10)
-
-    # Botón para cargar archivo con imagen
-    load_button = tk.Button(button_frame, image=load_icon, command=load_file, bg=theme["button_bg"], fg=theme["button_fg"])
-    load_button.image = load_icon  # Evitar que la imagen sea eliminada por el recolector de basura
-    load_button.pack(side=tk.LEFT, padx=5)
-
-    # Botón para guardar archivo con imagen
-    save_button = tk.Button(button_frame, image=save_icon, command=save_code, bg=theme["button_bg"], fg=theme["button_fg"])
-    save_button.image = save_icon
-    save_button.pack(side=tk.LEFT, padx=5)
     
     # Función que controla el cierre de la ventana
     def on_close():
