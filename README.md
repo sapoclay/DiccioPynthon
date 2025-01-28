@@ -25,6 +25,7 @@ DiccioPynthon es una aplicación de gestión de categorías y conceptos de Pytho
 - Pantalla principal: Se adaptó el listview de la lista de conceptos para que sea adaptable al tamaño de la ventana.
 - Solucionado el error al no guardar los datos en el editor de código.
 - Tema claro/oscuro: Se han añadido estas opciones en el menú preferencias.
+- Se ha añadido la opción de ejecutar DeepSeek utilizando Ollama para interactuar.
 
 ![sintaxis_y_sangria](https://github.com/user-attachments/assets/6b29fa80-f25d-4051-9785-b2b5af867921)
 
